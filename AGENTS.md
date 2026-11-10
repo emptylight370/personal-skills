@@ -4,6 +4,10 @@
 
 这是一个**纯 Markdown 的个人 Skill 集合仓库**，没有任何代码构建、测试或 lint 流程。所有"开发"工作都是编写和维护 skill 文档。提交信息使用中文，遵循仓库现有风格。
 
+## 文件编码
+
+仓库内所有文本文件（`*.md`、`*.json`、`*.yml` 等）**一律使用 UTF-8（无 BOM）编码**，禁止 GBK/ANSI。SKILL.md 的 frontmatter 含中文触发词，若文件被写成 GBK 编码，`npx skills`（Node 按 UTF-8 读取）会把中文读成乱码，本机 Python 校验脚本在系统默认 GBK 编码下反而"正常"，容易漏检——已配置 mise 环境变量 `PYTHONUTF8=1` 强制 Python 按 UTF-8 读写，使此类问题在校验阶段暴露。
+
 ## 文件操作工具优先级
 
 获取目录下文件列表、删除文件等文件操作，**优先使用 CodeBuddy 内置工具**（`list_dir`、`search_file`、`search_content`、`read_file`、`delete_file` 等），而不是通过终端执行 `ls`、`Get-ChildItem`、`Remove-Item` 之类的 shell 命令。仅当内置工具无法满足需求时（如需要批量重命名、权限修改等），才回退到终端命令。
@@ -34,7 +38,7 @@ python "<skill-creator 目录>\scripts\init_skill.py" <skill-name> --path <本�
 
 ### 获取/更新单个 skill（稀疏检出）
 
-见 `README.md` 中的 sparse-checkout 说明——本仓库的主要消费方式是把单个 skill 文件夹复制到目标项目的 `.agents/skills/`（Claude Code 为 `.claude/skills/`）。
+本仓库的主要消费方式是通过 `npx skills` CLI 安装（如 `npx skills add emptylight370/personal-skills`，详见 `README.md`），或把单个 skill 文件夹复制到目标项目的 `.agents/skills/`（Claude Code 为 `.claude/skills/`），稀疏检出的说明也见 `README.md`。注意：SKILL.md 的 description 为单行纯文本，值中不能包含半角 `: `（会被 YAML 当作嵌套映射导致 `npx skills` 解析失败）。
 
 ## 架构与结构
 
@@ -59,13 +63,19 @@ personal-skills/
 
 ### 现有 skill
 
-- **siyuan-skill**：通过 `siyuan` CLI 操作思源笔记，命令参考在 `references/commands.md`。
-- **issue-triage**：GitHub issue 分诊流程。其特有机制：项目上下文卡 `project-context.md` 运行时由 agent 检索生成后写入 SKILL.md 同级目录，**不随 skill 复制**；进度跟踪按 issue 一个文件落盘。修改此 skill 时注意保持"审阅前置、不预设操作分支"的核心设计不变。
+新增 skill 时**必须在此表登记一行**（同时更新 `README.md` 的 Skill 列表）；修改 skill 时若有行为或特有机制变化，同步更新对应行。完整介绍见 `README.md`，设计细节见 `docs/<skill-name>.md`。
+
+| Skill | 用途一句话 | 特有机制 / 修改注意 |
+|---|---|---|
+| [cnb-pipeline](./cnb-pipeline) | 编写、修改、审查 CNB 云原生构建 `.cnb.yml` 流水线配置 | 纯编写型，不依赖平台凭证与 CLI；平台事实（字段/事件/变量/插件参数）一律按 `references/doc-index.md` 路由表在线查官方文档，本地不维护会过期的字段快照 |
+| [issue-triage](./issue-triage) | GitHub issue 分诊与处置 | 项目上下文卡 `project-context.md` 运行时由 agent 检索生成、写入 SKILL.md 同级，**不随 skill 复制**；进度跟踪按 issue 一个文件落盘；保持"审阅前置、不预设操作分支"的核心设计不变 |
+| [requirement-clarify](./requirement-clarify) | 实现前确认需求：复述推导需求 + 列出不明确问题供确认 | 问题按"已解答 / 显式搁置 / agent 自定默认值待确认"三态跟踪；用户显式确认前不得开始实现 |
+| [siyuan-skill](./siyuan-skill) | 通过 `siyuan` CLI 操作思源笔记 | 命令参考在 `references/commands.md`；版本号先行（依据本地 CLI `--help` 转写，不联网改写参数表） |
 
 ### 新增/修改 skill 的完整流程
 
 1. （可选前置）**生成临时设计文档**：当需求较复杂或尚未明确时，先在 `docs/` 下创建同名设计文档草稿（中文），梳理设计原则、流程与落地形态，确认后再进入下一步；
 2. `init_skill.py` 生成骨架 → 编写 SKILL.md 与 references；
 3. `quick_validate.py` 校验通过；
-4. **同步更新 `README.md` 的 Skill 列表**（这是本仓库最容易遗漏的步骤）；
+4. **同步更新 `README.md` 的 Skill 列表与 `AGENTS.md` 的现有 skill 表**（这是本仓库最容易遗漏的步骤）；
 5. 在 `docs/` 创建同名设计文档（中文），说明设计原则、流程与落地形态。

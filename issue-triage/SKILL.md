@@ -1,6 +1,6 @@
 ---
 name: issue-triage
-description: Triage and handle GitHub issues for a repository - fetch and digest the issue list, produce summaries with preliminary classification suggestions, present decision cards, let the user openly decide how to proceed (self-fix with the agent's suggestions, or direct the agent to implement), then execute under strict review gates where external writes always require user review and commits follow the project's commit strategy, with cross-session progress tracking. This skill should be used when the user asks to triage, review, batch-process, fix, reply to, label, or close GitHub issues, or mentions issue ·ÖÕï / issue ´¦Àí / ´¦Àí issue ÁĞ±í.
+description: Triage and handle GitHub issues for a repository - fetch and digest the issue list, produce summaries with preliminary classification suggestions, present decision cards, let the user openly decide how to proceed (self-fix with the agent's suggestions, or direct the agent to implement), then execute under strict review gates where external writes always require user review and commits follow the project's commit strategy, with cross-session progress tracking. This skill should be used when the user asks to triage, review, batch-process, fix, reply to, label, or close GitHub issues, or mentions issue åˆ†è¯Š / issue å¤„ç† / å¤„ç† issue åˆ—è¡¨.
 ---
 
 # Issue Triage
@@ -15,8 +15,8 @@ On startup:
 
 1. Read `project-context.md` from the SKILL.md directory. If it exists, load it and proceed to Phase 1.
 2. If it does not exist, **ask the user whether to create it**:
-   - If the user agrees ¡ú auto-fill the card by inspecting the repository (README / CONTRIBUTING, directory structure, CI configuration, issue templates, `gh label list`, etc.). Never substitute guesses for facts. Mark fields that cannot be inferred from the repository as `pending` and list them in the report (the "user preferences" field is always obtained by asking the user) ¡ú present the draft for user review ¡ú write it to `project-context.md`.
-   - If the user declines ¡ú apply the most conservative fallback: never auto-close issues, perform no labeling or meta-operations, and deliver all code changes via PR (the default when no commit strategy is available). State this explicitly in the first report.
+   - If the user agrees â†’ auto-fill the card by inspecting the repository (README / CONTRIBUTING, directory structure, CI configuration, issue templates, `gh label list`, etc.). Never substitute guesses for facts. Mark fields that cannot be inferred from the repository as `pending` and list them in the report (the "user preferences" field is always obtained by asking the user) â†’ present the draft for user review â†’ write it to `project-context.md`.
+   - If the user declines â†’ apply the most conservative fallback: never auto-close issues, perform no labeling or meta-operations, and deliver all code changes via PR (the default when no commit strategy is available). State this explicitly in the first report.
 
 Context card fields (full template in `references/project-context-template.md`):
 
@@ -50,15 +50,15 @@ Context card fields (full template in `references/project-context-template.md`):
    - **User directs the agent**: The user gives direction and constraints, and the agent implements;
    - Any other operation (drafting a reply, follow-up questions, labeling, closing, etc.) is openly specified by the user; never choose on their behalf.
 9. **Constraints whenever the agent implements** (always in effect, regardless of what the user specifies):
-   - **Code changes**: Implement following the project's conventions, and **never touch the change red lines** declared in the context card ¡ú run the project's lint/test ¡ú show the diff ¡ú after user confirmation, deliver per the **commit strategy** - create a PR (body references the issue number; merging is decided by the user) or create a direct commit; default to PR when the commit strategy is undeclared; commit messages follow Conventional Commits and reference the issue number;
-   - **External text (replies / follow-up questions)**: Match the **issue author's** language (fall back to the context card's issue language convention when undetectable) ¡ú user review ¡ú publish via `gh issue comment`; never publish unreviewed;
+   - **Code changes**: Implement following the project's conventions, and **never touch the change red lines** declared in the context card â†’ run the project's lint/test â†’ show the diff â†’ after user confirmation, deliver per the **commit strategy** - create a PR (body references the issue number; merging is decided by the user) or create a direct commit; default to PR when the commit strategy is undeclared; commit messages follow Conventional Commits and reference the issue number;
+   - **External text (replies / follow-up questions)**: Match the **issue author's** language (fall back to the context card's issue language convention when undetectable) â†’ user review â†’ publish via `gh issue comment`; never publish unreviewed;
    - **Meta-operations (labeling, milestone changes, closing, transfers)**: Labeling may **only use labels from the label list**; never create labels unilaterally - obtain user consent first and update the list afterward. All of these are externally visible writes requiring user review before execution; closures must include a closing reason.
 
 ## Phase 4: Close the Loop
 
 10. **State policy**: Never auto-close by default. Apply the closure strategy from the context card (when that field is `pending`, apply the default "never auto-close" and prompt the user to complete it in the report); label issues awaiting verification with an intermediate-state label (it must exist in the label list - if missing, obtain user consent to create it first; when the user has declined to create a context card, perform no labeling at all).
 11. **Record associations**: Keep issue number references in commits, PRs, comments, and label changes so changelog tooling (git-cliff, etc.) can group them automatically.
-12. **Loop**: Update the corresponding issue's progress file (if tracking is enabled) ¡ú return to Phase 1 for the next issue until the round's queue is empty. To resume after an interruption, scan the progress directory for each issue's progress and skip completed stages.
+12. **Loop**: Update the corresponding issue's progress file (if tracking is enabled) â†’ return to Phase 1 for the next issue until the round's queue is empty. To resume after an interruption, scan the progress directory for each issue's progress and skip completed stages.
 
 ## Universal Invariants (red lines for every project)
 

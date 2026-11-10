@@ -1,10 +1,35 @@
 # Personal Skills
 
+**中文**
+| [English](README.en.md)
+
 个人 Skill 仓库，用于存放我在日常工作中沉淀下来的各类 Skill。每个 Skill 独立存放在一个单独的文件夹中，文件夹名称即为该 Skill 的名称，内部通常包含 `SKILL.md`（Skill 定义与说明）以及 `references/`、`scripts/` 等辅助目录。
 
 各 Skill 的设计文档统一存放在 [docs/](./docs) 目录（文件名用对应 skill 名），不随 skill 本身分发。
 
 ## 获取 Skill
+
+### npx skills（推荐）
+
+使用 [skills CLI](https://github.com/vercel-labs/skills) 一条命令安装（需 Node.js ≥ 22.20），支持 Claude Code、Cursor、Codex、OpenCode 等 75+ agent：
+
+```bash
+# 浏览仓库中可安装的 Skill
+npx skills add emptylight370/personal-skills --list
+
+# 交互式选择要安装的 Skill 及目标 agent（安装到当前项目）
+npx skills add emptylight370/personal-skills
+
+# 安装指定 Skill 到全局（跨项目可用），-a 可指定 agent，如 -a claude-code
+npx skills add emptylight370/personal-skills --skill siyuan-skill -g -y
+```
+
+安装到项目时，Skill 以 `.agents/skills/` 为规范存放位置，并在所选 agent 的 skill 目录（如 `.claude/skills/`）创建符号链接（加 `--copy` 可改为复制）。后续维护：
+
+```bash
+npx skills update   # 更新已安装的 Skill
+npx skills remove   # 移除已安装的 Skill
+```
 
 ### 稀疏检出（sparse-checkout）
 

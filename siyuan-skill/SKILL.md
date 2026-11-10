@@ -1,6 +1,6 @@
 ---
 name: siyuan-skill
-description: Operate SiYuan Note CLI (siyuan) to manage workspaces, notebooks, documents, blocks, SQL queries, search, export/import, assets, attributes, bookmarks, tags, history, refs, repo snapshots, sync, serve, database attribute views, templates, outlines, and system info. Use this skill when the user mentions SiYuan, 思源笔记, or asks to query/manipulate SiYuan data via CLI. The skill enforces the correct workflow: discover workspaces first, then target a specific workspace for all subsequent commands.
+description: Operate SiYuan Note CLI (siyuan) to manage workspaces, notebooks, documents, blocks, SQL queries, search, export/import, assets, attributes, bookmarks, tags, history, refs, repo snapshots, sync, serve, database attribute views, templates, outlines, and system info. Use this skill when the user mentions SiYuan, 思源笔记, or asks to query/manipulate SiYuan data via CLI. The skill enforces the correct workflow - discover workspaces first, then target a specific workspace for all subsequent commands.
 agent_created: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cnb-pipeline
-description: Write, modify, and review .cnb.yml pipeline configuration for the CNB cloud-native build platform, covering branch/event triggers, pipeline/stage/job structure, built-in tasks, plugin jobs, environment variables, caching, crontab schedules, and self-hosted runner scheduling. Trigger words: CNB pipeline, write .cnb.yml, .cnb.yml config, cloud-native build, pipeline syntax, pipeline YAML, 流水线配置, 云原生构建.
+description: Write, modify, and review .cnb.yml pipeline configuration for the CNB cloud-native build platform, covering branch/event triggers, pipeline/stage/job structure, built-in tasks, plugin jobs, environment variables, caching, crontab schedules, and self-hosted runner scheduling. Trigger words - CNB pipeline, write .cnb.yml, .cnb.yml config, cloud-native build, pipeline syntax, pipeline YAML, 流水线配置, 云原生构建.
 ---
 
 # CNB Pipeline Configuration
