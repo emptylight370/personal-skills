@@ -11,7 +11,7 @@ agent_created: true
 SiYuan Note provides a CLI (`siyuan`) to manage workspaces, notebooks, documents, blocks, and more.
 The binary must be available on `PATH` (verify with `siyuan --version`).
 
-> **CLI Version:** v3.8.9. Commands shown below reflect this version.
+> **CLI Version:** v3.8.10. Commands shown below reflect this version.
 
 > **Note:** If `siyuan` is not found on `PATH`, try `SiYuan-Kernel` as the alternative command name.
 
@@ -151,8 +151,8 @@ These flags are available on every subcommand:
 | `siyuan inbox` | `list`, `get`, `convert` |
 | `siyuan outline` | `get` |
 | `siyuan template` | `search`, `get`, `create`, `save-as`, `render`, `remove` |
-| `siyuan system` | `current-time` |
+| `siyuan system` | `current-time`, `fonts` |
 | `siyuan serve` | (direct, with flags) |
 | `siyuan completion` | `bash`, `fish`, `powershell`, `zsh` |
 
-> **Note:** `serve` accepts all global flags plus its own flags (`--accessAuthCode`, `--attach-ui`, `--enable-pprof`, `--lang`, `--mode`, `--port`, `--readonly`, `--ssl`, `--safe-mode`, `--wd`). It does not require `-w`; see `references/commands.md` for the full flag list.
+> **Note:** `serve` accepts all global flags plus its own flags (`--accessAuthCode`, `--attach-ui`, `--enable-pprof`, `--fixed-port`, `--lang`, `--mode`, `--port`, `--readonly`, `--ssl`, `--safe-mode`, `--wd`). It does not require `-w`; see `references/commands.md` for the full flag list.

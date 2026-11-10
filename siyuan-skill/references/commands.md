@@ -1,6 +1,6 @@
 # SiYuan CLI — Full Command Reference
 
-Auto-generated from `siyuan --help` output (v3.8.9).
+Auto-generated from `siyuan --help` output (v3.8.10).
 
 ---
 
@@ -71,12 +71,12 @@ siyuan document [command] -w <path>
 ### Subcommands
 | Command | Flags | Description |
 |---------|-------|-------------|
-| `list --notebook <id>` | `--hpath <path>` `--path <path>` | List documents in a notebook |
+| `list --notebook <id>` | `--hpath <path>` `--path <path>` (default: `/`) | List documents in a notebook |
 | `get --id <id>` | `--id <id>` | Get document info |
 | `info --id <id>` | `--id <id>` | Get document info |
-| `create --notebook <id> --title <title>` | `--path <path>` `--markdown <md>` | Create a document |
+| `create --notebook <id> --title <title>` | `--path <path>` (default: `/`) `--markdown <md>` | Create a document |
 | `rename --id <id> --title <title>` | `--id <id>` `--title <title>` | Rename a document |
-| `move --id <id> --notebook <id>` | `--hpath <path>` `--path <path>` | Move a document to another notebook |
+| `move --id <id> --notebook <id>` | `--hpath <path>` `--path <path>` (default: `/`) | Move a document to another notebook |
 | `duplicate --id <id>` | `--id <id>` | Duplicate a document |
 | `remove --id <id>` | `--id <id>` | Remove a document |
 | `search <keyword>` | | Search documents by keyword |
@@ -102,7 +102,7 @@ siyuan block [command] -w <path>
 | `delete --id <id>` | `--id <id>` | Delete block |
 | `move --id <id> --parent <id>` | `--id <id>` `--parent <id>` `--previous <id>` | Move block |
 | `dom --id <id>` | `--id <id>` | Get block DOM |
-| `kramdown --id <id>` | `--id <id>` `--mode md\|textmark` | Get block kramdown |
+| `kramdown --id <id>` | `--id <id>` `--mode md\|textmark` (default: `md`) | Get block kramdown |
 | `breadcrumb --id <id>` | `--id <id>` | Get block breadcrumb |
 | `batch-get --ids <ids>` | `--ids <id1,id2,...>` | Batch get block info |
 | `batch-kramdown --ids <ids>` | `--ids <id1,id2,...>` | Batch get block kramdown |
@@ -417,7 +417,7 @@ text/number/date/select/mSelect/url/email/phone/location/mAsset/template/created
 ### database item — Nested Subcommands
 | Command | Flags | Description |
 |---------|-------|-------------|
-| `item add --av <avID>` | `--av <avID>` `--block <blockID>` `--content <string>` `--detached` `--group <groupID>` `--previous <prevItemID>` `--view <viewID>` `--ignore-default-fill` | Add a row to database |
+| `item add --av <avID>` | `--av <avID>` `--block <blockID>` (default: auto-generate a new block) `--content <string>` `--detached` `--group <groupID>` `--previous <prevItemID>` `--view <viewID>` `--ignore-default-fill` | Add a row to database |
 | `item update --av <avID> --key <keyID> --item <itemID> --value <json>` | `--av <avID>` `--key <keyID>` `--item <itemID>` `--value <json>` | Update a cell value |
 | `item remove --av <avID> --ids <id1,id2,...>` | `--av <avID>` `--ids <ids>` | Remove rows from database |
 
@@ -506,6 +506,7 @@ siyuan system [command] -w <path>
 | Command | Flags | Description |
 |---------|-------|-------------|
 | `current-time` | | Show current server time |
+| `fonts` | `--lang <lang>` (default: `en`) | List system fonts as JSON without opening a workspace |
 
 ---
 
@@ -544,6 +545,7 @@ Starts the SiYuan kernel HTTP server. All serving-related options below are pass
 | `--accessAuthCode <string>` | Access auth code |
 | `--attach-ui` | Attach kernel lifecycle to desktop UI process (used by Electron) |
 | `--enable-pprof` | Register unauthenticated /debug/pprof/ endpoints exposing process memory dumps (dev only, never enable on a network-exposed instance) |
+| `--fixed-port` | Enable the extra port 6806 proxy for browser extensions (does not change `--port`) (default: true) |
 | `--lang <string>` | Language: ar/de/en/es/fr/he/hi/id/it/ja/ko/nl/pl/pt-BR/ru/sk/sr/th/tr/uk/zh-CN/zh-TW |
 | `--mode <string>` | Run mode: dev/prod (non-prod values must not be used on network-exposed instances) (default "prod") |
 | `--port <string>` | Port of the HTTP server (default "0" = auto) |
