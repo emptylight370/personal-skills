@@ -1,4 +1,4 @@
-# Personal Skill
+# Personal Skills
 
 个人 Skill 仓库，用于存放我在日常工作中沉淀下来的各类 Skill。每个 Skill 独立存放在一个单独的文件夹中，文件夹名称即为该 Skill 的名称，内部通常包含 `SKILL.md`（Skill 定义与说明）以及 `references/`、`scripts/` 等辅助目录。
 
@@ -12,8 +12,8 @@
 
 ```bash
 # 1. 克隆仓库到本地（--sparse 启用 cone 模式稀疏检出；--depth 1 只取最新提交）
-git clone --filter=blob:none --sparse --depth 1 git@github.com:emptylight370/personal-skill.git
-cd personal-skill
+git clone --filter=blob:none --sparse --depth 1 git@github.com:emptylight370/personal-skills.git
+cd personal-skills
 
 # 2. 指定需要检出的 Skill 文件夹（可一次指定多个，文件内容在此步按需下载）
 git sparse-checkout set siyuan-skill
@@ -27,7 +27,7 @@ git sparse-checkout add another-skill
 更新时进入仓库目录拉取远端最新内容即可，`sparse-checkout` 的配置会被保留：
 
 ```bash
-cd personal-skill
+cd personal-skills
 git pull
 ```
 
@@ -39,19 +39,19 @@ git pull
 
 ```bash
 # 1. 克隆仓库（部分：仅稀疏检出所需 Skill；也可去掉 --sparse 克隆整个仓库）
-git clone --filter=blob:none --sparse --depth 1 git@github.com:emptylight370/personal-skill.git /tmp/personal-skill
+git clone --filter=blob:none --sparse --depth 1 git@github.com:emptylight370/personal-skills.git /tmp/personal-skills
 
 # 2. 指定需要的 Skill（克隆整个仓库时可跳过）
-git -C /tmp/personal-skill sparse-checkout set siyuan-skill
+git -C /tmp/personal-skills sparse-checkout set siyuan-skill
 
 # 3. 复制到项目的 skill 目录（Claude Code 为 <project>/.claude/skills）
 mkdir -p <project>/.agents/skills
-cp -r /tmp/personal-skill/siyuan-skill <project>/.agents/skills/
+cp -r /tmp/personal-skills/siyuan-skill <project>/.agents/skills/
 ```
 
-复制得到的是纯内容文件夹（不含 `.git`），可直接被项目使用。Windows 下可用 `$env:TEMP\personal-skill` 作为克隆目录，并将 `cp -r` 替换为 `Copy-Item -Recurse -Force`。
+复制得到的是纯内容文件夹（不含 `.git`），可直接被项目使用。Windows 下可用 `$env:TEMP\personal-skills` 作为克隆目录，并将 `cp -r` 替换为 `Copy-Item -Recurse -Force`。
 
-后续更新时重复上述操作即可：先 `git -C /tmp/personal-skill pull` 更新临时仓库，再覆盖复制到项目的 skill 目录。
+后续更新时重复上述操作即可：先 `git -C /tmp/personal-skills pull` 更新临时仓库，再覆盖复制到项目的 skill 目录。
 
 ## Skill 列表
 

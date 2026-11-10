@@ -46,7 +46,7 @@ SKILL.md 与 references 分工：SKILL.md 控制"怎么用"（工作流与易错
 ## 5. 落地形态
 
 ```
-personal-skill/
+personal-skills/
 ├── siyuan-skill/
 │   ├── SKILL.md                    # 工作流 + 领域概念 + 全局 flag + 子命令索引（英文祈使式）
 │   └── references/

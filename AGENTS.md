@@ -41,7 +41,7 @@ python "<skill-creator 目录>\scripts\init_skill.py" <skill-name> --path <本�
 ### 顶层布局
 
 ```
-personal-skill/
+personal-skills/
 ├── <skill-name>/        # 每个 skill 一个目录，目录名 = skill 名
 │   ├── SKILL.md         # 必需：frontmatter（name + description）+ 正文
 │   └── references/      # 可选：按需加载的参考材料
