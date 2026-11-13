@@ -86,7 +86,7 @@ cp -r /tmp/personal-skills/siyuan-skill <project>/.agents/skills/
 
 ### [issue-triage](./issue-triage)
 
-对 GitHub 仓库的 issue 进行分诊与处置：拉取列表、生成摘要与初步分类建议、呈现决策卡片，由用户开放性决定处置方式（自行修改或指导 agent 修改）后执行（改码 / 回复 / 打标 / 关闭），并支持跨会话进度跟踪。所有对外可见的写操作（评论、标签、里程碑、关闭、转移、PR）一律先经用户审阅；项目级配置（标签列表、提交策略、收尾策略等）通过 agent 检索生成、用户审阅后的上下文卡（`project-context.md`）注入。
+对 GitHub 仓库的 issue 进行分诊与处置：拉取列表、生成摘要与初步分类建议、呈现决策卡片，由用户开放性决定处置方式（自行修改或指导 agent 修改）后执行（改码 / 回复 / 打标 / 关闭），并支持跨会话进度跟踪。所有对外可见的写操作（评论、标签、里程碑、关闭、转移、PR）一律先经用户审阅；项目级配置（标签列表、提交策略、收尾策略等）通过 agent 检索生成、用户审阅后的上下文卡（`project-context.md`）注入；上下文卡与进度文件存放在与 skill 安装根同级的数据目录（如 `.agents/issue-triage/`），不入库且不受 `skills update` 影响。
 
 ### [requirement-clarify](./requirement-clarify)
 

@@ -68,7 +68,7 @@ personal-skills/
 | Skill | 用途一句话 | 特有机制 / 修改注意 |
 |---|---|---|
 | [cnb-pipeline](./cnb-pipeline) | 编写、修改、审查 CNB 云原生构建 `.cnb.yml` 流水线配置 | 纯编写型，不依赖平台凭证与 CLI；平台事实（字段/事件/变量/插件参数）一律按 `references/doc-index.md` 路由表在线查官方文档，本地不维护会过期的字段快照 |
-| [issue-triage](./issue-triage) | GitHub issue 分诊与处置 | 项目上下文卡 `project-context.md` 运行时由 agent 检索生成、写入 SKILL.md 同级，**不随 skill 复制**；进度跟踪按 issue 一个文件落盘；保持"审阅前置、不预设操作分支"的核心设计不变 |
+| [issue-triage](./issue-triage) | GitHub issue 分诊与处置 | 运行时数据（上下文卡、进度文件）写入**与安装根同级的数据目录**（`<agentRoot>/issue-triage/`，随安装位置推导；链接安装只保留 canonical 一份并为各 agent 根建数据链接，复制安装则**每份安装各写自己的数据目录并逐文件同步**），**不在 skill 文件夹内**，避免被 `skills update`/`remove` 清空；各 base 目录的 `.gitignore` 追加锚定条目 `/issue-triage/`；内置 `scripts/triage-data.{mjs,ps1,sh}`（resolve/init/sync/status）承载拓扑判定与多副本同步，SKILL.md 保留手工回退步骤；`ps1` 仅支持 PowerShell 7+（`#Requires -Version 7.0`，禁止用 `powershell.exe` 5.1 调用）；进度跟踪按 issue 一个文件落盘；保持"审阅前置、不预设操作分支"的核心设计不变 |
 | [requirement-clarify](./requirement-clarify) | 实现前确认需求：复述推导需求 + 列出不明确问题供确认 | 问题按"已解答 / 显式搁置 / agent 自定默认值待确认"三态跟踪；用户显式确认前不得开始实现 |
 | [siyuan-skill](./siyuan-skill) | 通过 `siyuan` CLI 操作思源笔记 | 命令参考在 `references/commands.md`；版本号先行（依据本地 CLI `--help` 转写，不联网改写参数表） |
 

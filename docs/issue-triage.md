@@ -1,6 +1,6 @@
 # issue-triage 设计文档
 
-> 目标：agent 作为**信息枢纽与执行代理**，用户作为**唯一决策者**。接入新项目时将 skill 复制进项目仓库，上下文卡由 agent 检索生成、用户审阅后写入。
+> 目标：agent 作为**信息枢纽与执行代理**，用户作为**唯一决策者**。接入新项目时将 skill 复制进项目仓库，上下文卡由 agent 检索生成、用户审阅后写入 skill 安装根同级的数据目录。
 
 ## 1. 设计原则
 
@@ -11,7 +11,42 @@
 
 ## 2. 第 0 步：项目上下文注入（agent 生成，用户审阅）
 
-上下文卡**由 agent 检索仓库后自动生成草稿**，用户审阅确认后写入 **SKILL.md 同级目录**（`project-context.md`），后续读取也从该位置获取。**推荐将 skill 安装在项目内**（每项目一份），保证上下文卡与项目一一对应。
+上下文卡**由 agent 检索仓库后自动生成草稿**，用户审阅确认后写入 skill 的**数据目录**（`<agentRoot>/issue-triage/project-context.md`），后续读取也从该位置获取。**推荐将 skill 安装在项目内**（每项目一份），保证上下文卡与项目一一对应。
+
+**数据目录随安装位置推导**：安装根为 `<agentRoot>/skills/issue-triage/` 时，数据目录即 `<agentRoot>/issue-triage/`（去掉 `skills/` 段）。判定顺序：
+
+1. **项目根**取运行工具的工作区根（多根时取第一个），不用 cwd 子目录；
+2. **候选 agent 根**依次为「当前运行工具的 skill 目录 → `.agents`（`npx skills` 的通用位置）→ 项目中其他含 `skills/issue-triage/` 的 agent 根」，先查项目根、再查用户主目录；
+3. **命中校验**：读该目录的 `SKILL.md`，确认 frontmatter `name` 为 `issue-triage`，避免同名异 skill；
+4. **链接解析**：命中项若是符号链接/junction，读其目标（`readlink -f` / `realpath`；Windows 用 `Get-Item -Force`，`Resolve-Path` 不解析重解析点）；目标落在另一 agent 根的 `skills/` 下时，该根为 canonical；
+5. **选定 base**：解析出链接取 canonical，无链接取唯一真实命中，存在多份独立真实副本则询问用户；
+6. **全局安装**：仅命中用户主目录时，提示数据将跨项目共用并提供项目级目录；
+7. **无命中**（内置或只读位置）：询问用户指定数据目录。
+
+数据目录**必须位于 skill 文件夹之外**，否则会被 skills CLI 的内容哈希计入，并在 `skills update` / `remove` 时随 canonical 目录一起被清空。
+
+**链接安装：单一共享数据目录**：若 skill 以符号链接方式安装（`npx skills` 默认行为：各 agent 目录链接到 canonical 副本），数据目录只在 canonical agent 根保留一份，并为每个链接到该 skill 的 agent 根创建指向它的目录链接（`<linkedAgentRoot>/issue-triage` → `<canonicalAgentRoot>/issue-triage`，Windows 用 junction）；**只为已存在的 agent 根建链接**，不得为存放数据而新建 agent 根（否则会改变工具对已装 agent 的检测）。
+
+**复制安装：每份安装各一份数据目录并同步**：若 skill 以文件复制方式安装，每个 agent 根都是独立的真实副本，则**为每份安装单独写入各自的数据目录** `<agentRoot>/issue-triage/`，并在它们之间维护同步：
+
+1. **主目录**为当前运行该 skill 的 agent 对应的数据目录（链接安装时即 canonical 数据目录），其余为**镜像**；每次运行重新探测镜像，不持久化列表；
+2. **读取前**：主目录缺少 `project-context.md` 或某个 issue 进度文件、而某镜像有时，从镜像取回；
+3. **写入后**：把变更的文件（`project-context.md`、`progress/<issue>.md`）逐文件复制到所有镜像；
+4. **不盲目覆盖**：内容相同的跳过；仅一侧存在的复制过去；两侧同名文件内容不同时，展示简短差异并由用户决定保留哪份，再把选定版本传播到其余副本；
+5. 各副本可能处于不同 skill 版本，若其 `SKILL.md` 内容不一致，同步数据前先提示用户。
+
+**gitignore 维护**：在数据目录所在 base 目录内的 `.gitignore`（如 `.agents/.gitignore`）追加**锚定条目** `/issue-triage/`——必须带前导斜杠，否则无锚定的 `issue-triage/` 会连带忽略 `<base>/skills/issue-triage/` 这个已安装的 skill。文件已存在时保留原内容并追加；已存在等价条目（`/issue-triage` 或 `/issue-triage/`）则跳过；各 base 目录各自维护，互不链接；其他位置不改，用户要跟踪某文件时自行手工修改忽略文件。
+
+**脚本辅助**：`scripts/triage-data.{mjs,ps1,sh}` 实现上述 resolve / init / sync / status：
+
+| 命令 | 作用 | 关键输出 |
+|---|---|---|
+| `resolve` | 探测安装拓扑 | `mode`、`primary`、`canonicalRoot`、`installs[]`、`syncTargets[]`、`mirrorLinks[]`、`warnings[]` |
+| `init` | 幂等创建数据目录、镜像链接、gitignore 条目 | `actions`、`conflicts[]` |
+| `sync [--dry-run]` | 读前补齐、写后传播、冲突报告 | `conflicts[]`，冲突时退出码 2 |
+| `status` | 列出各数据目录中的文件 | `files[]` |
+
+按平台选择：`node scripts/triage-data.mjs`（任意平台）、`pwsh -NoProfile -File scripts/triage-data.ps1`（Windows 无 Node；**仅 PowerShell 7+**，脚本首行 `#Requires -Version 7.0`，不要用 `powershell.exe` 5.1 调用）、`sh scripts/triage-data.sh`（Unix/macOS 无 Node）；多副本时传 `--agent-root <base>` 让主目录对齐当前 agent；无运行时则退回手工步骤。三份实现的 `resolve` 输出字段一致；`sh` 版的 `init`/`sync`/`status` 只输出 `ok`/`primary`/`mirrors`/`actions`/`conflicts`/`files` 等核心字段，不重复输出拓扑明细。
 
 **生成方式**：agent 通过检索仓库自动填写——README / CONTRIBUTING、目录结构、CI 配置、issue 模板、`gh label list` 等，不以猜测代替事实；无法从仓库推断的字段（如"用户偏好"）标为 `待补充` 并在汇报中列出，通过**询问用户获得后补写**。
 
@@ -25,7 +60,7 @@
 - **收尾策略**：修复后 issue 何时可关（即时 / 等验证 / 等发版），用什么标签标记中间态（中间态标签须存在于标签列表中）
 - **用户偏好**：本流程的行为偏好，由询问用户获得并持久化（非仓库检索所得），例如——进度跟踪是否启用、进度目录、其他后续新增的偏好项；后续运行直接按偏好执行，不再重复询问
 
-**缺失处理**：启动时读取 SKILL.md 同级目录，找不到 `project-context.md` 则**询问用户是否创建**；用户同意后走上述"检索生成 → 审阅 → 写入"流程。用户拒绝时采用最保守兜底策略——不自动关闭、不执行任何打标/元操作、所有代码交付一律走 PR（此场景下无提交策略可依，按阶段三默认值处理），并在首次汇报中说明。
+**缺失处理**：启动时读取数据目录，找不到 `project-context.md` 时，若旧位置（skill 文件夹内或其他工具的数据目录）存在则先**询问是否迁移**；全都没有才**询问用户是否创建**；用户同意后走上述"检索生成 → 审阅 → 写入"流程。用户拒绝时采用最保守兜底策略——不自动关闭、不执行任何打标/元操作、所有代码交付一律走 PR（此场景下无提交策略可依，按阶段三默认值处理），并在首次汇报中说明。
 
 ## 3. 阶段一：收集与摘要（Fetch & Digest）
 
@@ -35,7 +70,7 @@
    - 关键事实（复现路径、报错、环境、讨论分歧）
    - 关联线索（相关文件、相似 issue、附带 PR）
 3. **初步分类建议**：给出 bug / feature / docs / 咨询 / 重复 / wontfix 候选的**推测性分类建议**，供用户复核。对"重复 / wontfix"这类高敏感结论必须附带证据（重复 issue 编号、讨论原文引用），且不自动执行任何关闭动作。同时标出**信息缺口**（需追问的点）。
-4. **进度落盘**：首次落盘前**询问用户是否启用进度跟踪**，以及**进度目录**（默认建议当前运行工具的数据子目录下按 skill 名称命名的子文件夹，如 `.codebuddy/issue-triage/`、`.claude/skills/issue-triage/` 等；用户也可自行固定其他路径）。用户确认后将"是否启用 + 存放路径"写入上下文卡**用户偏好**，后续运行直接按偏好执行，不再重复询问；用户未启用则跳过落盘。进度跟踪采用**每个 issue 一个文件**：在进度目录下为每个 issue 创建独立文件（如 `<issue-number>.md`），记录该 issue 的处理阶段（已摘要 / 待决策 / 已执行 / 已收尾）及关键决策摘要；恢复执行时扫描进度目录即可续跑，单个 issue 的进度互不影响。
+4. **进度落盘**：首次落盘前**询问用户是否启用进度跟踪**，以及**进度目录**（默认 `<数据目录>/progress/`，如 `.agents/issue-triage/progress/`；用户也可自行固定其他路径）。用户确认后将"是否启用 + 存放路径"写入上下文卡**用户偏好**，后续运行直接按偏好执行，不再重复询问；用户未启用则跳过落盘。进度跟踪采用**每个 issue 一个文件**：在进度目录下为每个 issue 创建独立文件（如 `<issue-number>.md`），记录该 issue 的处理阶段（已摘要 / 待决策 / 已执行 / 已收尾）及关键决策摘要；恢复执行时扫描进度目录即可续跑，单个 issue 的进度互不影响。
 
 ## 4. 阶段二：决策呈现（Present, Don't Decide）
 
@@ -72,20 +107,29 @@
 
 ## 8. 落地形态
 
-skill **安装在项目内**（每项目一份，上下文卡与项目天然一一对应）：
+skill **安装在项目内**（每项目一份，上下文卡与项目天然一一对应），数据目录与安装根同级（下例以装在 `.agents` 为例，其他 agent 根同理）：
 
 ```
 项目仓库内/
-└── issue-triage/
-    ├── SKILL.md                                  # 通用流程（第 0 步 + 四阶段 + 不变量），英文
-    └── references/
-        └── project-context-template.md           # 上下文卡模板（生成 project-context.md 的依据）
+├── .agents/
+│   ├── .gitignore                                # 追加锚定条目 /issue-triage/
+│   ├── skills/
+│   │   └── issue-triage/                         # skill 安装位置（canonical 副本）
+│   │       ├── SKILL.md                          # 通用流程（第 0 步 + 四阶段 + 不变量），英文
+│   │       └── references/
+│   │           └── project-context-template.md   # 上下文卡模板（生成 project-context.md 的依据）
+│   └── issue-triage/                             # 运行时数据目录（不入库）
+│       ├── project-context.md                    # 上下文卡
+│       └── progress/
+│           └── <issue-number>.md                 # 每个 issue 一份进度
+└── <otherAgentRoot>/
+    └── issue-triage -> ../.agents/issue-triage   # 符号链接安装时镜像数据目录（复制安装则直接建目录）
 
 设计文档（本仓库统一存放）
 └── docs/
     └── issue-triage.md                           # 本文档（中文）
 ```
 
-- **SKILL.md** 是稳定层，接入新项目时整体复制到该项目仓库即可，不需修改；启动时由 agent 检索当前仓库生成上下文卡草稿 → 用户审阅 → 写入 SKILL.md 同级目录，后续每次运行从这里读取。
-- **project-context.md** 不随 skill 复制，而是运行时生成；进度文件按 issue 一份，存放在用户偏好指定的进度目录。
+- **SKILL.md** 是稳定层，接入新项目时整体复制到该项目仓库即可，不需修改；启动时由 agent 检索当前仓库生成上下文卡草稿 → 用户审阅 → 写入数据目录，后续每次运行从这里读取。
+- **project-context.md / 进度文件** 不随 skill 复制，而是运行时生成在数据目录（`<agentRoot>/issue-triage/`）中；数据目录位于 skill 文件夹之外，因此不会被 skills CLI 的内容哈希计入，也不受 `skills update` / `remove` 影响。
 - **设计文档**统一存放在本仓库顶层 `docs/` 目录（文件名用 skill 名），不随 skill 复制分发。
