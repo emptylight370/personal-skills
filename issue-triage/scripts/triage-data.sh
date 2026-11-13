@@ -404,11 +404,21 @@ done < "$tmp/installs"
 add_gitignore() {
   root=$1
   file=$root/.gitignore
-  entry=/$skill/
-  alt=/$skill
+  entry=/$skill/*
+  legacy1=/$skill/
+  legacy2=/$skill
   if [ -f "$file" ]; then
-    if grep -qxF "$entry" "$file" 2>/dev/null || grep -qxF "$alt" "$file" 2>/dev/null; then
+    if grep -qxF "$entry" "$file" 2>/dev/null; then
       printf '%s\n' "$file" >> "$tmp/skipped"
+      return
+    fi
+    if grep -qxF "$legacy1" "$file" 2>/dev/null || grep -qxF "$legacy2" "$file" 2>/dev/null; then
+      tmpf=$file.tmp.$$
+      awk -v e="$entry" -v l1="$legacy1" -v l2="$legacy2" '{
+        t=$0; sub(/^[ \t]+/,"",t); sub(/[ \t\r]+$/,"",t)
+        if (t==l1 || t==l2) print e; else print
+      }' "$file" > "$tmpf" && mv "$tmpf" "$file"
+      printf '%s\n' "$file" >> "$tmp/updated"
       return
     fi
     if [ -s "$file" ]; then

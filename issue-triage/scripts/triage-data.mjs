@@ -342,16 +342,29 @@ function resolveTopology(opts) {
 
 function ensureGitignore(root, skill, dryRun, actions) {
   const file = path.join(root, '.gitignore');
-  const entry = `/${skill}/`;
-  const alt = `/${skill}`;
+  const entry = `/${skill}/*`;
+  const legacy = new Set([`/${skill}/`, `/${skill}`]);
   const current = E.read(file);
   const lines = (current ?? '').split(/\r?\n/).map((l) => l.trim());
-  if (lines.includes(entry) || lines.includes(alt)) {
+  if (lines.includes(entry)) {
     actions.skipped.push(out(file));
     return;
   }
-  const prefix = current === null || current === '' ? '' : current.endsWith('\n') ? current : `${current}\n`;
-  const next = `${prefix}${entry}\n`;
+  let next;
+  if (lines.some((l) => legacy.has(l))) {
+    next = current
+      .split(/(?<=\n)/)
+      .map((line) => {
+        const bare = line.replace(/\r?\n$/, '');
+        if (!legacy.has(bare.trim())) return line;
+        const eol = line.endsWith('\r\n') ? '\r\n' : line.endsWith('\n') ? '\n' : '';
+        return `${entry}${eol}`;
+      })
+      .join('');
+  } else {
+    const prefix = current === null || current === '' ? '' : current.endsWith('\n') ? current : `${current}\n`;
+    next = `${prefix}${entry}\n`;
+  }
   if (dryRun) {
     actions.planned.push(out(file));
     return;

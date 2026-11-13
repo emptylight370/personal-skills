@@ -262,16 +262,30 @@ function Get-Topology([string]$Project, [string]$Skill, [string]$AgentRoot, [str
 
 function Add-GitignoreEntry([string]$Root, [string]$Skill, [bool]$DryRun, $Actions) {
   $file = Join-P $Root '.gitignore'
-  $entry = "/$Skill/"
-  $alt = "/$Skill"
+  $entry = "/$Skill/*"
+  $legacy1 = "/$Skill/"
+  $legacy2 = "/$Skill"
   $current = $null
   if (Test-Ex $file) { try { $current = [IO.File]::ReadAllText($file) } catch { $current = $null } }
   $lines = @()
   if ($null -ne $current) { $lines = @($current -split "\r?\n" | ForEach-Object { $_.Trim() }) }
-  if (($lines -contains $entry) -or ($lines -contains $alt)) { $Actions.skipped.Add($file); return }
-  $prefix = ''
-  if ($null -ne $current -and $current.Length -gt 0) { $prefix = if ($current.EndsWith("`n")) { $current } else { $current + "`n" } }
-  $next = $prefix + $entry + "`n"
+  if ($lines -contains $entry) { $Actions.skipped.Add($file); return }
+  $hasLegacy = ($lines -contains $legacy1) -or ($lines -contains $legacy2)
+  if ($hasLegacy) {
+    $parts = [regex]::Split($current, '(?<=\n)')
+    $next = ($parts | ForEach-Object {
+        $line = $_
+        $bare = $line.TrimEnd("`r", "`n")
+        if (($bare.Trim() -eq $legacy1) -or ($bare.Trim() -eq $legacy2)) {
+          $eol = if ($line.EndsWith("`r`n")) { "`r`n" } elseif ($line.EndsWith("`n")) { "`n" } else { "" }
+          $entry + $eol
+        } else { $line }
+      }) -join ''
+  } else {
+    $prefix = ''
+    if ($null -ne $current -and $current.Length -gt 0) { $prefix = if ($current.EndsWith("`n")) { $current } else { $current + "`n" } }
+    $next = $prefix + $entry + "`n"
+  }
   if ($DryRun) { $Actions.planned.Add($file); return }
   [IO.File]::WriteAllText($file, $next, $script:Utf8)
   if ($null -eq $current) { $Actions.created.Add($file) } else { $Actions.updated.Add($file) }

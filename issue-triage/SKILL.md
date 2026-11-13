@@ -46,10 +46,10 @@ When the skill is installed by copying, every agent root holds an independent re
 
 Never commit runtime data. Edit the `.gitignore` file inside the base folder that holds the data directory:
 
-- Add an **anchored** entry `/issue-triage/`. The leading slash is required: an unanchored `issue-triage/` would also ignore the installed skill at `<base>/skills/issue-triage/`.
-- If the file already exists, append the entry only when no equivalent entry (`/issue-triage` or `/issue-triage/`) is present; preserve the existing content.
+- Add an **anchored** entry `/issue-triage/*` rather than `/issue-triage/`: the directory itself stays tracked, so a single file can be re-included with a later `!` rule (e.g. `!/issue-triage/project-context.md`). The leading slash is required - an unanchored `issue-triage/*` would also match the installed skill at `<base>/skills/issue-triage/`.
+- If `/issue-triage/*` is already present, skip. If an older `/issue-triage/` or `/issue-triage` entry exists, replace that line with `/issue-triage/*` instead of adding a second entry, preserving the rest of the file.
 - Maintain one `.gitignore` per base folder, and add the entry to every base folder that holds a copy's data directory; never link them together.
-- Do not edit ignore files anywhere else. Users who want to track a specific file edit the ignore file by hand.
+- Do not edit ignore files anywhere else. Users who want to track a specific file edit the ignore file by hand: add `!/issue-triage/<file>` after the ignore rule; for a file inside `progress/`, re-include the directory first (`!/issue-triage/progress/`, then `!/issue-triage/progress/<file>`).
 
 ### Automation scripts
 

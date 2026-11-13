@@ -35,7 +35,7 @@
 4. **不盲目覆盖**：内容相同的跳过；仅一侧存在的复制过去；两侧同名文件内容不同时，展示简短差异并由用户决定保留哪份，再把选定版本传播到其余副本；
 5. 各副本可能处于不同 skill 版本，若其 `SKILL.md` 内容不一致，同步数据前先提示用户。
 
-**gitignore 维护**：在数据目录所在 base 目录内的 `.gitignore`（如 `.agents/.gitignore`）追加**锚定条目** `/issue-triage/`——必须带前导斜杠，否则无锚定的 `issue-triage/` 会连带忽略 `<base>/skills/issue-triage/` 这个已安装的 skill。文件已存在时保留原内容并追加；已存在等价条目（`/issue-triage` 或 `/issue-triage/`）则跳过；各 base 目录各自维护，互不链接；其他位置不改，用户要跟踪某文件时自行手工修改忽略文件。
+**gitignore 维护**：在数据目录所在 base 目录内的 `.gitignore`（如 `.agents/.gitignore`）追加**锚定条目** `/issue-triage/*`（而不是 `/issue-triage/`）——目录本身保持可追踪，用户可用 `!/issue-triage/project-context.md` 这类反选规则恢复单个文件；必须带前导斜杠，否则无锚定的 `issue-triage/*` 会连带匹配 `<base>/skills/issue-triage/` 这个已安装的 skill。文件已存在时保留原内容并追加；已有 `/issue-triage/*` 则跳过，存在旧条目（`/issue-triage/` 或 `/issue-triage`）则把该行替换为 `/issue-triage/*` 而非重复追加；各 base 目录各自维护，互不链接；其他位置不改，用户要跟踪某文件时自行手工修改忽略文件。
 
 **脚本辅助**：`scripts/triage-data.{mjs,ps1,sh}` 实现上述 resolve / init / sync / status：
 
@@ -112,7 +112,7 @@ skill **安装在项目内**（每项目一份，上下文卡与项目天然一�
 ```
 项目仓库内/
 ├── .agents/
-│   ├── .gitignore                                # 追加锚定条目 /issue-triage/
+│   ├── .gitignore                                # 追加锚定条目 /issue-triage/*
 │   ├── skills/
 │   │   └── issue-triage/                         # skill 安装位置（canonical 副本）
 │   │       ├── SKILL.md                          # 通用流程（第 0 步 + 四阶段 + 不变量），英文
