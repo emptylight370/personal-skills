@@ -24,7 +24,7 @@ npx skills add emptylight370/personal-skills
 npx skills add emptylight370/personal-skills --skill siyuan-skill -g -y
 ```
 
-安装到项目时，Skill 以 `.agents/skills/` 为规范存放位置，并在所选 agent 的 skill 目录（如 `.claude/skills/`）创建符号链接（加 `--copy` 可改为复制）。后续维护：
+安装到项目时，若只选一个 agent，Skill 直接复制到该 agent 的 skill 目录（如 `.claude/skills/`）；若选多个 agent，则以 `.agents/skills/` 为规范存放位置，并在各 agent 的 skill 目录创建符号链接（默认行为，加 `--copy` 可改为各自复制）。后续维护：
 
 ```bash
 npx skills update   # 更新已安装的 Skill

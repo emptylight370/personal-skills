@@ -76,7 +76,7 @@ skill 为纯流程型，不包含 `scripts/`、`references/`、`assets/`：
 requirement-clarify/
 └── SKILL.md        # 通用流程（五阶段 + 证据纪律 + 通用不变量），英文
 
-设计文档（本仓库统一存放）
+设计文档（按 `AGENTS.md` 约定存放）
 └── docs/
     └── requirement-clarify.md   # 本文档（中文）
 ```

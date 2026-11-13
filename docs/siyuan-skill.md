@@ -34,7 +34,7 @@ SKILL.md 与 references 分工：SKILL.md 控制"怎么用"（工作流与易错
    - SKILL.md：若差异涉及工作流或领域概念（如新 flag 改变某个操作的正确用法），同步更新相应小节；纯参数表变化不动 SKILL.md 正文；
    - SKILL.md 的子命令索引表与实际命令集保持一致。
 5. **汇报变更清单**：按"实质性变更 / 文案类变更 / 无变化"分组汇报本轮修订内容，供用户复核。
-6. **校验**：改动完成后运行 `quick_validate.py` 确认 frontmatter 仍合法（description 保持单行）。
+6. **校验**：改动完成后按 `AGENTS.md` 的校验命令运行 `quick_validate.py`（description 保持单行）。
 
 ## 4. 更新边界
 
@@ -56,4 +56,4 @@ personal-skills/
 ```
 
 - **SKILL.md** 与 **references/commands.md** 一起随 skill 分发；分发到目标项目后，若目标项目安装的 siyuan 版本不同，由用户自行处理。
-- **设计文档**（本文档）只存于本仓库 `docs/`，不进入 skill 目录。
+- **设计文档**（本文档）按 `AGENTS.md` 约定只存于本仓库 `docs/`，不进入 skill 目录。

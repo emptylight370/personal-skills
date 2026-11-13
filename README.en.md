@@ -24,7 +24,7 @@ npx skills add emptylight370/personal-skills
 npx skills add emptylight370/personal-skills --skill siyuan-skill -g -y
 ```
 
-When installing into a project, skills are stored canonically in `.agents/skills/`, with symlinks created in the selected agents' skill directories (e.g. `.claude/skills/`); add `--copy` to copy instead of symlinking. Ongoing maintenance:
+When installing into a project with a single agent, the skill is copied into that agent's skill directory (e.g. `.claude/skills/`); with multiple agents, skills are stored canonically in `.agents/skills/` and symlinked from each selected agent directory (add `--copy` to copy into every directory instead). Ongoing maintenance:
 
 ```bash
 npx skills update   # Update installed skills

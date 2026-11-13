@@ -1,6 +1,6 @@
 # cnb-pipeline 设计文档
 
-> 目标：从官方 `cnb/skills` 仓库的 `cnb-pipeline` skill 中提取「编写 `.cnb.yml` 流水线配置」部分，剥离所有平台操作耦合（诊断、CLI、凭证、NPC 运行时约束），以**纯联网查官方文档**为语法事实来源，落地为本仓库一个**通用本地编写型 skill**（不在 CNB 平台运行、不面向 WorkBuddy，随本仓库按 `.agents/skills/` 方式分发）。
+> 目标：从官方 `cnb/skills` 仓库的 `cnb-pipeline` skill 中提取「编写 `.cnb.yml` 流水线配置」部分，剥离所有平台操作耦合（诊断、CLI、凭证、NPC 运行时约束），以**纯联网查官方文档**为语法事实来源，落地为本仓库一个**通用本地编写型 skill**（不在 CNB 平台运行、不面向 WorkBuddy，随本仓库分发，安装方式见 `README.md`）。
 >
 > 状态：**已落地**。最终形态见 `cnb-pipeline/` 目录。
 
@@ -21,7 +21,7 @@
 - **纯联网、零维护**：不内联字段/事件/变量快照，所有取值类事实在运行时按 `references/doc-index.md` 的路由表 WebFetch `docs.cnb.cool` 现查。路由表只存「要查什么事实 → 哪一篇」，不抄文档内容；索引页 `/zh/llms.txt` 作为路径失配时的兜底。
 - **骨架与易错点离线自带**：官方分册中不依赖文档的部分（结构骨架、三链语义、易错点、变量替换规则、定时同步规则）原样保留，离线也能写简单流水线。
 - **只写不诊断**：删除「诊断工作流程」与 `diagnose-guide.md`（依赖 `cnb-api` + `cnb` CLI + `CNB_TOKEN`），删除所有 `cnb pulls`/`cnb build` 命令引用，删除「修后不轮询」「NPC 自动唤起」等 NPC 运行时专属约束。skill 从「要凭证的操作型」退化为「纯本地知识型」。
-- **遵循本仓库 skill 约定**：frontmatter 仅 `name` + `description`（description 单行，英文为主、尾部附中文触发词）；正文英文祈使式指令，分发到非中文项目无需改动；YAML 示例保留官方原样。
+- **遵循本仓库 skill 约定**（见 `AGENTS.md`）：frontmatter、正文语言等按仓库规范执行；YAML 示例保留官方原样。
 - **平台中立**：正文与分册不含 WorkBuddy/CodeBuddy/NPC 运行时专属措辞与安装说明；插件市场等 URL 写死为 SaaS 公网地址（原 `${CNB_WEB_HOST}` 环境变量写法是 NPC 运行时产物）。
 - **`self-hosted-runner.md` 瘦身**：只留纯配置约束（平台/架构支持、双配必需、`docker.image` 在 Mac/Win 不生效、按平台写脚本），删掉节点接入、日志排查、`runner-config.json` 安全配置等平台操作内容。
 - **`crontab.md` 只留配置相关**：保留心智模型（`.cnb.yml` 与定时任务列表两份数据靠同步对齐）、配置要点、同步规则速查、删除清理；删掉依赖 `cnb` CLI 的排查流程，同步操作保留一句 Web UI 入口指引。
@@ -74,7 +74,7 @@ cnb-pipeline/
 - **全部分册**：所有「让 `cnb-docs` 现查」改为「按 `doc-index.md` 查官方文档」；`plugin-search.md` 中 `${CNB_WEB_PROTOCOL:-https}://${CNB_WEB_HOST:-cnb.cool}` 环境变量 URL 写死为 `https://cnb.cool/...`；删去面向 NPC 的「顺手完善项目 skill 并随 PR 提交」类运行时指令，改为「发现分册过时就改分册」。
 - **plugin-search.md**：删「插件 README 编写建议」一节（属插件贡献方，非写配置所需）。
 - **self-hosted-runner.md**：删「排查前先识别 Runner 类型」「常见问题排查」「安全建议」三节与接入指引。
-- **正文语言**：英文祈使式（本仓库约定）；官方示例 YAML 原样保留。
+- **正文语言**：英文祈使式（按 `AGENTS.md` 约定）；官方示例 YAML 原样保留。
 
 ## 6. 遗留事项与已知限制
 
@@ -86,6 +86,6 @@ cnb-pipeline/
 
 ## 7. 落地与维护
 
-- 落地位置：本仓库 `cnb-pipeline/`；`README.md` Skill 列表已同步新增条目。
+- 落地位置：本仓库 `cnb-pipeline/`；Skill 列表与新增登记按 `AGENTS.md` 流程维护。
 - 维护方式：与官方 `cnb-docs` 去知识化设计一致——**不维护事实快照**，只维护路由表与易错点；平台演进导致分册表述过时时，随使用顺手修订分册。
 - 官方仓库更新跟踪：官方 `cnb/skills` 的 `cnb-pipeline` 若新增分册或易错点，可浅克隆对照增量吸收（`git clone --depth 1 https://cnb.cool/cnb/skills.git`）。

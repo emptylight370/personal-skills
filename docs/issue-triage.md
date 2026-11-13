@@ -125,11 +125,11 @@ skill **安装在项目内**（每项目一份，上下文卡与项目天然一�
 └── <otherAgentRoot>/
     └── issue-triage -> ../.agents/issue-triage   # 符号链接安装时镜像数据目录（复制安装则直接建目录）
 
-设计文档（本仓库统一存放）
+设计文档（按 `AGENTS.md` 约定存放）
 └── docs/
     └── issue-triage.md                           # 本文档（中文）
 ```
 
 - **SKILL.md** 是稳定层，接入新项目时整体复制到该项目仓库即可，不需修改；启动时由 agent 检索当前仓库生成上下文卡草稿 → 用户审阅 → 写入数据目录，后续每次运行从这里读取。
 - **project-context.md / 进度文件** 不随 skill 复制，而是运行时生成在数据目录（`<agentRoot>/issue-triage/`）中；数据目录位于 skill 文件夹之外，因此不会被 skills CLI 的内容哈希计入，也不受 `skills update` / `remove` 影响。
-- **设计文档**统一存放在本仓库顶层 `docs/` 目录（文件名用 skill 名），不随 skill 复制分发。
+- **设计文档**按 `AGENTS.md` 约定统一存放在 `docs/`（文件名用 skill 名），不随 skill 复制分发。
